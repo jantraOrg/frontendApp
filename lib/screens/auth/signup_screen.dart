@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -9,9 +10,15 @@ class SignupScreen extends StatefulWidget {
 
 class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController phoneController = TextEditingController();
-  final TextEditingController aadhaarController = TextEditingController();
+  final TextEditingController countryCodeController =
+      TextEditingController(text: '+91');
 
-  bool useKyc = false; // toggle between normal signup & KYC signup
+  // Aadhaar Controllers
+  final TextEditingController aadhaar1 = TextEditingController();
+  final TextEditingController aadhaar2 = TextEditingController();
+  final TextEditingController aadhaar3 = TextEditingController();
+
+  bool useKyc = false;
 
   @override
   Widget build(BuildContext context) {
@@ -21,10 +28,7 @@ class _SignupScreenState extends State<SignupScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFFFF6C2),
-              Color(0xFFFFFDF2),
-            ],
+            colors: [Color(0xFFF9C802), Color(0xFFFFF9E6)],
           ),
         ),
         child: Center(
@@ -72,23 +76,54 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                   const SizedBox(height: 30),
 
-                  // Phone or Aadhaar Field
+                  // PHONE SIGNUP ---------------------------------------------------
                   if (!useKyc) ...[
-                    TextField(
-                      controller: phoneController,
-                      keyboardType: TextInputType.phone,
-                      decoration: InputDecoration(
-                        labelText: 'Phone Number',
-                        labelStyle: const TextStyle(
-                            color: Color(0xFF8C7000),
-                            fontFamily: 'Poppins',
-                            fontWeight: FontWeight.w600),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: 80,
+                          child: TextField(
+                            controller: countryCodeController,
+                            readOnly: true, // ✅ now fixed
+                            textAlign: TextAlign.center,
+                            decoration: InputDecoration(
+                              labelText: 'Code',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              labelStyle: const TextStyle(
+                                color: Color(0xFF8C7000),
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
                         ),
-                        prefixIcon:
-                            const Icon(Icons.phone, color: Color(0xFF8C7000)),
-                      ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: TextField(
+                            controller: phoneController,
+                            keyboardType: TextInputType.number,
+                            maxLength: 10, // ✅ limit to 10 digits
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(10),
+                            ],
+                            decoration: InputDecoration(
+                              counterText: '', // ✅ hide the character counter
+                              labelText: 'Phone Number',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              labelStyle: const TextStyle(
+                                color: Color(0xFF8C7000),
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton(
@@ -100,9 +135,16 @@ class _SignupScreenState extends State<SignupScreen> {
                         elevation: 4,
                       ),
                       onPressed: () {
-                        // TODO: OTP sending logic
-                        Navigator.pushReplacementNamed(context, '/home');
-                      },
+  if (phoneController.text.length != 10) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Please enter a valid 10-digit phone number')),
+    );
+    return;
+  }
+  // TODO: Send OTP logic here
+  Navigator.pushNamed(context, '/otp'); // ✅ open OTP screen
+},
+
                       child: const Text(
                         'Send OTP',
                         style: TextStyle(
@@ -112,22 +154,17 @@ class _SignupScreenState extends State<SignupScreen> {
                         ),
                       ),
                     ),
-                  ] else ...[
-                    TextField(
-                      controller: aadhaarController,
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        labelText: 'Aadhaar Number',
-                        labelStyle: const TextStyle(
-                            color: Color(0xFF8C7000),
-                            fontFamily: 'Poppins',
-                            fontWeight: FontWeight.w600),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        prefixIcon: const Icon(Icons.verified_user,
-                            color: Color(0xFF8C7000)),
-                      ),
+                  ]
+                  // AADHAAR SIGNUP ------------------------------------------------
+                  else ...[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        _aadhaarBox(aadhaar1, next: aadhaar2),
+                        _aadhaarBox(aadhaar2,
+                            next: aadhaar3, previous: aadhaar1),
+                        _aadhaarBox(aadhaar3, previous: aadhaar2),
+                      ],
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton.icon(
@@ -205,6 +242,50 @@ class _SignupScreenState extends State<SignupScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  // Helper widget for Aadhaar segmented input
+  Widget _aadhaarBox(TextEditingController controller,
+      {TextEditingController? next, TextEditingController? previous}) {
+    return SizedBox(
+      width: 90,
+      child: TextField(
+        controller: controller,
+        maxLength: 4,
+        keyboardType: TextInputType.number,
+        inputFormatters: [
+          FilteringTextInputFormatter.digitsOnly, // ✅ allow digits only
+          LengthLimitingTextInputFormatter(4),
+        ],
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 2,
+        ),
+        decoration: InputDecoration(
+          counterText: '',
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          labelText: 'XXXX',
+          labelStyle: const TextStyle(
+            color: Color(0xFF8C7000),
+            fontFamily: 'Poppins',
+          ),
+        ),
+        onChanged: (val) {
+          // Move to next box when 4 digits typed
+          if (val.length == 4 && next != null) {
+            FocusScope.of(context).nextFocus();
+          }
+          // Move back if field is empty and user pressed backspace
+          if (val.isEmpty && previous != null) {
+            FocusScope.of(context).previousFocus();
+          }
+        },
       ),
     );
   }

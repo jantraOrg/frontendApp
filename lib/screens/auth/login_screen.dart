@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -9,6 +10,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController phoneController = TextEditingController();
+  final TextEditingController countryCodeController =
+      TextEditingController(text: '+91');
   final TextEditingController otpController = TextEditingController();
 
   bool otpSent = false;
@@ -21,10 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFFFF6C2),
-              Color(0xFFFFFDF2),
-            ],
+            colors: [Color(0xFFF9C802), Color(0xFFFFF9E6)],
           ),
         ),
         child: Center(
@@ -46,7 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // App Logo (Optional small one)
+                  // App Logo
                   Image.asset(
                     'assets/images/main_logo.png',
                     width: 90,
@@ -77,27 +77,56 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 30),
 
-                  // Phone Field
-                  TextField(
-                    controller: phoneController,
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                      labelText: 'Phone Number',
-                      labelStyle: const TextStyle(
-                        color: Color(0xFF8C7000),
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w600,
+                  // Phone Field Row (with fixed +91)
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 80,
+                        child: TextField(
+                          controller: countryCodeController,
+                          readOnly: true, // fixed +91
+                          textAlign: TextAlign.center,
+                          decoration: InputDecoration(
+                            labelText: 'Code',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            labelStyle: const TextStyle(
+                              color: Color(0xFF8C7000),
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
                       ),
-                      prefixIcon:
-                          const Icon(Icons.phone, color: Color(0xFF8C7000)),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: TextField(
+                          controller: phoneController,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(10),
+                          ],
+                          decoration: InputDecoration(
+                            counterText: '',
+                            labelText: 'Phone Number',
+                            labelStyle: const TextStyle(
+                              color: Color(0xFF8C7000),
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w600,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                   const SizedBox(height: 20),
 
-                  // OTP Section (visible after Send OTP)
+                  // OTP Field (appears after sending OTP)
                   if (otpSent) ...[
                     AnimatedContainer(
                       duration: const Duration(milliseconds: 400),
@@ -105,6 +134,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: TextField(
                         controller: otpController,
                         keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(6),
+                        ],
                         decoration: InputDecoration(
                           labelText: 'Enter OTP',
                           labelStyle: const TextStyle(
@@ -112,8 +145,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.w600,
                           ),
-                          prefixIcon: const Icon(Icons.lock_open_rounded,
-                              color: Color(0xFF8C7000)),
+                          prefixIcon: const Icon(
+                            Icons.lock_open_rounded,
+                            color: Color(0xFF8C7000),
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(16),
                           ),
@@ -136,10 +171,28 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     onPressed: () {
                       if (!otpSent) {
-                        // TODO: Send OTP Logic
+                        // Validate phone before sending OTP
+                        if (phoneController.text.length != 10) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content:
+                                    Text('Please enter a valid 10-digit number')),
+                          );
+                          return;
+                        }
                         setState(() => otpSent = true);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('OTP sent successfully')),
+                        );
                       } else {
-                        // TODO: Verify OTP Logic
+                        // OTP verification (mock)
+                        if (otpController.text.length != 6) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Please enter the 6-digit OTP')),
+                          );
+                          return;
+                        }
                         Navigator.pushReplacementNamed(context, '/home');
                       }
                     },
@@ -156,7 +209,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const SizedBox(height: 25),
 
-                  // Signup Redirect
+                  // Sign Up Redirect
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -185,7 +238,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 15),
 
-                  // Optional help or tagline
+                  // Tagline
                   const Text(
                     'Powered by Citizens. Driven by Truth.',
                     textAlign: TextAlign.center,

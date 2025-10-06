@@ -9,9 +9,10 @@ import 'screens/vote/vote_screen.dart';
 import 'screens/leaderboard/leaderboard_screen.dart';
 import 'screens/profile/profile_screen.dart';
 import 'screens/auth/role_selection_screen.dart';
+import 'screens/auth/otp_verification_screen.dart';
 
 final Map<String, WidgetBuilder> appRoutes = {
-  
+
   '/intro': (context) => const IntroSplash(),
   '/login': (context) => const LoginScreen(),
   '/signup': (context) => const SignupScreen(),
@@ -22,5 +23,7 @@ final Map<String, WidgetBuilder> appRoutes = {
   '/leaderboard': (context) => const LeaderboardScreen(),
   '/profile': (context) => const ProfileScreen(),
   '/role': (context) => const RoleSelectionScreen(),
+  '/otp': (context) => const OtpVerificationScreen(),
+
 
 };
