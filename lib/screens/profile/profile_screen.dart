@@ -1,14 +1,28 @@
 import 'package:flutter/material.dart';
+import 'edit_profile_popup.dart';
+import 'verify_email_popup.dart';
+import 'verify_phone_popup.dart';
+import 'verify_address_popup.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final double civilScore = 820; // Example score
-    final String userName = "Aarav Patel";
-    final String userPhone = "+91 98765 43210";
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
 
+class _ProfileScreenState extends State<ProfileScreen> {
+  final double civilScore = 820; // Example score
+  final String userName = "Aarav Patel";
+  final String userPhone = "+91 98765 43210";
+
+  bool aadhaarVerified = true;
+  bool emailVerified = true;
+  bool phoneVerified = false;
+  bool addressVerified = false;
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFFFFCF5),
       appBar: AppBar(
@@ -78,7 +92,12 @@ class ProfileScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => const EditProfilePopup(),
+                      );
+                    },
                     icon: const Icon(Icons.edit, size: 18),
                     label: const Text(
                       "Edit Profile",
@@ -167,27 +186,31 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   _buildVerificationTile(
+                    context: context,
                     icon: Icons.credit_card,
                     title: "Aadhaar Verification",
-                    status: "✅ Verified",
+                    status: aadhaarVerified ? "✅ Verified" : "Pending",
                     points: "+100 pts",
                   ),
                   _buildVerificationTile(
+                    context: context,
                     icon: Icons.email,
                     title: "Email Verification",
-                    status: "Pending",
+                    status: emailVerified ? "✅ Verified" : "Pending",
                     points: "+50 pts",
                   ),
                   _buildVerificationTile(
+                    context: context,
                     icon: Icons.phone,
                     title: "Phone Verification",
-                    status: "✅ Verified",
+                    status: phoneVerified ? "✅ Verified" : "Pending",
                     points: "+30 pts",
                   ),
                   _buildVerificationTile(
+                    context: context,
                     icon: Icons.home,
                     title: "Address Verification",
-                    status: "Not Done",
+                    status: addressVerified ? "✅ Verified" : "Not Done",
                     points: "+70 pts",
                   ),
                 ],
@@ -292,13 +315,15 @@ class ProfileScreen extends StatelessWidget {
   }
 
   // 🔸 Helper Widgets
-
-  static Widget _buildVerificationTile({
+  Widget _buildVerificationTile({
+    required BuildContext context,
     required IconData icon,
     required String title,
     required String status,
     required String points,
   }) {
+    final bool isVerified = status.contains("✅");
+
     return Card(
       elevation: 1,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -311,17 +336,37 @@ class ProfileScreen extends StatelessWidget {
         subtitle: Text(status, style: const TextStyle(color: Colors.grey)),
         trailing: Text(
           points,
-          style: const TextStyle(
-            color: Colors.green,
+          style: TextStyle(
+            color: isVerified ? Colors.green : Colors.orange,
             fontWeight: FontWeight.bold,
             fontFamily: 'Poppins',
           ),
         ),
+        onTap: () {
+          if (!isVerified) {
+            if (title == "Email Verification") {
+              showDialog(
+                context: context,
+                builder: (context) => const VerifyEmailPopup(),
+              );
+            } else if (title == "Phone Verification") {
+              showDialog(
+                context: context,
+                builder: (context) => const VerifyPhonePopup(),
+              );
+            } else if (title == "Address Verification") {
+              showDialog(
+                context: context,
+                builder: (context) => const VerifyAddressPopup(),
+              );
+            }
+          }
+        },
       ),
     );
   }
 
-  static Widget _buildStatCard(String title, String value, IconData icon) {
+  Widget _buildStatCard(String title, String value, IconData icon) {
     return Column(
       children: [
         CircleAvatar(
@@ -350,7 +395,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  static Widget _buildSettingsTile(IconData icon, String title) {
+  Widget _buildSettingsTile(IconData icon, String title) {
     return ListTile(
       leading: Icon(icon, color: const Color(0xFF6C5C00)),
       title: Text(
