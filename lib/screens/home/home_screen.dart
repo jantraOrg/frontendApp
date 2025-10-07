@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../leaderboard/leaderboard_screen.dart';
+import '../profile/profile_screen.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -10,11 +13,12 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 1; // Start from the main feed (center tab)
 
-  final List<Widget> _pages = [
-    const Center(child: Text("🏆 Leaderboard Page")),
-    const FeedScreen(), // main feed
-    const Center(child: Text("👤 Profile Page")),
-  ];
+ final List<Widget> _pages = [
+  const LeaderboardScreen(), // ← actual leaderboard
+  const FeedScreen(),        // ← your main feed
+  const ProfileScreen(),     // ← actual profile
+];
+
 
   void _onTabTapped(int index) {
     setState(() => _currentIndex = index);
@@ -152,36 +156,38 @@ class _HomeScreenState extends State<HomeScreen> {
 
       // Bottom navigation bar
       bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 8,
-        color: Colors.white,
-        elevation: 8,
-        child: SizedBox(
-          height: 65,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              IconButton(
-                icon: Icon(
-                  Icons.leaderboard,
-                  color:
-                      _currentIndex == 0 ? const Color(0xFFF9C802) : Colors.grey,
+          shape: const CircularNotchedRectangle(),
+          notchMargin: 8,
+          color: Colors.white,
+          elevation: 8,
+          child: SizedBox(
+            height: 65,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                IconButton(
+                  icon: Icon(
+                    Icons.leaderboard,
+                    color: _currentIndex == 0 ? const Color(0xFFF9C802) : Colors.grey,
+                  ),
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/leaderboard');
+                  },
                 ),
-                onPressed: () => _onTabTapped(0),
-              ),
-              const SizedBox(width: 40), // space for FAB
-              IconButton(
-                icon: Icon(
-                  Icons.person,
-                  color:
-                      _currentIndex == 2 ? const Color(0xFFF9C802) : Colors.grey,
+                const SizedBox(width: 40), // space for FAB
+                IconButton(
+                  icon: Icon(
+                    Icons.person,
+                    color: _currentIndex == 2 ? const Color(0xFFF9C802) : Colors.grey,
+                  ),
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/profile');
+                  },
                 ),
-                onPressed: () => _onTabTapped(2),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
     );
   }
 }

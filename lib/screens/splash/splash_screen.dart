@@ -42,7 +42,7 @@ class _IntroSplashState extends State<IntroSplash> {
   @override
   void initState() {
     super.initState();
-    timer = Timer.periodic(const Duration(seconds: 4), (t) {
+    timer = Timer.periodic(const Duration(seconds: 3), (t) {
       if (currentPage < pages.length - 1) {
         setState(() => currentPage++);
       } else {
