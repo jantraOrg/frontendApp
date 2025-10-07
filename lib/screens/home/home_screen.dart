@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../leaderboard/leaderboard_screen.dart';
 import '../profile/profile_screen.dart';
-
+import '../report/report_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -307,11 +307,26 @@ class _ComplaintCardState extends State<ComplaintCard> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Opening "${widget.title}" details...')),
-        );
-      },
+     onTap: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => ReportDetailScreen(
+        title: widget.title,
+        category: "Open Garbage",
+        description: "Garbage has been overflowing near Sector 9 park.",
+        images: [
+          "https://picsum.photos/400",
+          "https://picsum.photos/401",
+        ],
+        latitude: 28.6139,
+        longitude: 77.2090,
+        status: "In Review",
+      ),
+    ),
+  );
+},
+
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(

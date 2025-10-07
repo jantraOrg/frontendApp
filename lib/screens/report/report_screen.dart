@@ -106,255 +106,234 @@ class _ReportScreenState extends State<ReportScreen> {
       }
 
       _formKey.currentState!.save();
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("✅ Report Submitted Successfully")),
       );
-
-      // TODO: Integrate API call here
     }
   }
+
+  bool get _isReadyToSubmit =>
+      _selectedCategory != null &&
+      _images.isNotEmpty &&
+      _description != null &&
+      _description!.isNotEmpty &&
+      _position != null;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFDFBF3),
+      backgroundColor: const Color(0xFFFFFCF5),
       appBar: AppBar(
         title: const Text(
           "Report an Issue",
-          style: TextStyle(fontFamily: 'Poppins', fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.bold,
+          ),
         ),
         backgroundColor: const Color(0xFFF9C802),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // 🗂️ Category Selector
-              const Text(
-                "Select Category",
-                style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16),
-              ),
-              const SizedBox(height: 8),
-              DropdownButtonFormField<String>(
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  border:
-                      OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                hint: const Text("Choose an issue category"),
-                value: _selectedCategory,
-                items: categories
-                    .map((c) => DropdownMenuItem(value: c, child: Text(c)))
-                    .toList(),
-                onChanged: (value) => setState(() => _selectedCategory = value),
-                validator: (value) =>
-                    value == null ? "Please select a category" : null,
-              ),
-
-              const SizedBox(height: 20),
-
-              // 📸 Photo Upload
-              const Text(
-                "Upload Photos (1–3)",
-                style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16),
-              ),
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  ..._images.map((file) => Stack(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: Image.file(
-                              file,
-                              width: 100,
-                              height: 100,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          Positioned(
-                            top: 0,
-                            right: 0,
-                            child: GestureDetector(
-                              onTap: () {
-                                setState(() => _images.remove(file));
-                              },
-                              child: const CircleAvatar(
-                                radius: 12,
-                                backgroundColor: Colors.red,
-                                child: Icon(Icons.close,
-                                    size: 14, color: Colors.white),
-                              ),
-                            ),
-                          ),
-                        ],
-                      )),
-                  GestureDetector(
-                    onTap: _capturePhoto,
-                    child: Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: const Color(0xFFF9C802)),
-                        borderRadius: BorderRadius.circular(10),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Card(
+            elevation: 6,
+            color: Colors.white,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "Submit a Civic Issue",
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF6C5C00),
                       ),
-                      child: const Icon(Icons.camera_alt,
-                          size: 35, color: Color(0xFFF9C802)),
                     ),
-                  ),
-                ],
-              ),
+                    const SizedBox(height: 20),
 
-              const SizedBox(height: 20),
+                    // 🗂️ Category Selector
+                    DropdownButtonFormField<String>(
+                      decoration: InputDecoration(
+                        labelText: "Select Category",
+                        labelStyle: const TextStyle(fontFamily: 'Poppins'),
+                        filled: true,
+                        fillColor: const Color(0xFFFFFBE6),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15)),
+                      ),
+                      value: _selectedCategory,
+                      items: categories
+                          .map((c) =>
+                              DropdownMenuItem(value: c, child: Text(c)))
+                          .toList(),
+                      onChanged: (value) =>
+                          setState(() => _selectedCategory = value),
+                      validator: (value) =>
+                          value == null ? "Please select a category" : null,
+                    ),
 
-              // 🎥 Video Upload
-              const Text(
-                "Upload Short Video (optional)",
-                style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16),
-              ),
-              const SizedBox(height: 10),
-              _video == null
-                  ? OutlinedButton.icon(
-                      onPressed: _captureVideo,
-                      icon: const Icon(Icons.videocam, color: Color(0xFFF9C802)),
-                      label: const Text("Record 10s Video"),
-                    )
-                  : Stack(
-                      alignment: Alignment.center,
+                    const SizedBox(height: 20),
+
+                    // 📸 Photo Upload
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "Upload Photos (1–3)",
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[800],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      alignment: WrapAlignment.center,
                       children: [
-                        Container(
-                          height: 150,
-                          decoration: BoxDecoration(
-                            color: Colors.black12,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Center(
-                            child: Icon(Icons.play_circle_fill,
-                                size: 50, color: Colors.black54),
+                        ..._images.map(
+                          (file) => Stack(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.file(
+                                  file,
+                                  width: 90,
+                                  height: 90,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              Positioned(
+                                top: 0,
+                                right: 0,
+                                child: GestureDetector(
+                                  onTap: () =>
+                                      setState(() => _images.remove(file)),
+                                  child: const CircleAvatar(
+                                    radius: 12,
+                                    backgroundColor: Colors.red,
+                                    child: Icon(Icons.close,
+                                        size: 14, color: Colors.white),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        Positioned(
-                          top: 10,
-                          right: 10,
-                          child: GestureDetector(
-                            onTap: () => setState(() => _video = null),
-                            child: const CircleAvatar(
-                              radius: 12,
-                              backgroundColor: Colors.red,
-                              child: Icon(Icons.close,
-                                  size: 14, color: Colors.white),
+                        GestureDetector(
+                          onTap: _capturePhoto,
+                          child: Container(
+                            width: 90,
+                            height: 90,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFFBE6),
+                              border: Border.all(color: const Color(0xFFF9C802)),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: const Icon(Icons.camera_alt,
+                                size: 30, color: Color(0xFFF9C802)),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // 🧭 Location Capture
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _position == null
+                                ? (_isLoadingLocation
+                                    ? "Fetching location..."
+                                    : "No location captured")
+                                : "📍 ${_position!.latitude.toStringAsFixed(4)}, ${_position!.longitude.toStringAsFixed(4)}",
+                            style: const TextStyle(fontFamily: 'Poppins'),
+                          ),
+                        ),
+                        ElevatedButton.icon(
+                          onPressed: _getLocation,
+                          icon: const Icon(Icons.location_on),
+                          label: const Text("Get Location"),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFF9C802),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
                             ),
                           ),
                         ),
                       ],
                     ),
 
-              const SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-              // 🧭 Location Capture
-              Row(
-                children: [
-                  Expanded(
-                    child: _position == null
-                        ? Text(
-                            _isLoadingLocation
-                                ? "Fetching location..."
-                                : "No location captured",
-                            style: const TextStyle(fontFamily: 'Poppins'),
-                          )
-                        : Text(
-                            "📍 ${_position!.latitude.toStringAsFixed(4)}, ${_position!.longitude.toStringAsFixed(4)}",
-                            style: const TextStyle(fontFamily: 'Poppins'),
+                    // 📝 Description
+                    TextFormField(
+                      maxLines: 3,
+                      maxLength: 300,
+                      decoration: InputDecoration(
+                        hintText: "Describe the issue briefly (max 50 words)",
+                        filled: true,
+                        fillColor: const Color(0xFFFFFBE6),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(15)),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Please enter a short description";
+                        }
+                        if (value.split(" ").length > 50) {
+                          return "Maximum 50 words allowed";
+                        }
+                        return null;
+                      },
+                      onChanged: (val) => setState(() => _description = val),
+                    ),
+
+                    const SizedBox(height: 30),
+
+                    // 🚀 Submit Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        icon: const Icon(Icons.send_rounded),
+                        label: const Text(
+                          "Submit Report",
+                          style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.bold),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _isReadyToSubmit
+                              ? const Color(0xFFF9C802)
+                              : Colors.grey,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: _getLocation,
-                    icon: const Icon(Icons.location_on),
-                    label: const Text("Get Location"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFF9C802),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        ),
+                        onPressed: _isReadyToSubmit ? _submitReport : null,
                       ),
                     ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 20),
-
-              // 📝 Description
-              const Text(
-                "Description (max 50 words)",
-                style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                maxLines: 3,
-                maxLength: 300,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  hintText: "Describe the issue briefly...",
-                  border:
-                      OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Please enter a short description";
-                  }
-                  if (value.split(" ").length > 50) {
-                    return "Maximum 50 words allowed";
-                  }
-                  return null;
-                },
-                onSaved: (val) => _description = val,
-              ),
-
-              const SizedBox(height: 30),
-
-              // 🚀 Submit Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  icon: const Icon(Icons.send),
-                  label: const Text(
-                    "Submit Report",
-                    style: TextStyle(fontFamily: 'Poppins'),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF9C802),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onPressed: _submitReport,
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
         ),
       ),
