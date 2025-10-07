@@ -8,7 +8,7 @@ class RoleSelectionScreen extends StatelessWidget {
     final roles = [
       {"title": "Citizen", "icon": Icons.person_outline},
       {"title": "Official", "icon": Icons.shield_outlined},
-      {"title": "Volunteer", "icon": Icons.volunteer_activism_outlined},
+      {"title": "Media", "icon": Icons.volunteer_activism_outlined},
     ];
 
     return Scaffold(
